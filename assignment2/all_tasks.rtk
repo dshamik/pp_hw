@@ -1,0 +1,236 @@
+#lang slideshow
+
+(define (power-of-two n)
+  (expt 2 n)
+)
+
+(define (binary-to-decimal lst)
+  (define (helper idx summ lst)
+    (cond
+      [
+        (empty? lst) summ
+      ]
+      [
+        else (helper (+ idx 1) (+ summ (* (power-of-two idx) (first lst))) (rest lst))
+      ]
+    )
+  )
+  (helper 0 0 (reverse lst))
+)
+
+(binary-to-decimal '(1 0 1 1 0)) ; 22
+
+
+
+; function for deleting zeros
+(define (delete-zeros lst)
+  (cond
+    [
+      (empty? lst) lst
+    ]
+    [
+      (equal? (first lst) 0) (delete-zeros (rest lst))
+    ]
+    [
+      else lst
+    ]
+  )
+)
+
+
+
+(define (count-zeros lst)
+  (define (helper cntr lst)
+    (cond
+      [
+        (empty? lst) cntr
+      ]
+      [
+        (= (first lst) 1) (helper cntr (rest lst))
+      ]
+      [
+        else (helper (+ cntr 1) (rest lst))
+      ]
+    )
+  )
+  (helper 0 (delete-zeros lst))
+)
+
+(count-zeros '(0 0 0 1 0 1 1 0)) ; 2
+
+
+
+(define (encode-with-lengths lst)
+  (define (helper counter previous lengths lst)
+    (cond
+      [
+        (empty? lst) (cons counter lengths)
+      ]
+      [
+        (= (first lst) previous) (helper (+ counter 1) previous lengths (rest lst))
+      ]
+      [
+        else (helper 1 (first lst) (cons counter lengths) (rest lst))
+      ]
+    )
+  )
+  (reverse (helper 0 1 '() (delete-zeros lst)))
+)
+
+(encode-with-lengths '(0 0 0 1 1 0 1 1 1 0 0)) ; '(2 1 3 2)
+
+
+(define (binary-odd? lst)
+  (cond
+    [(empty? (rest lst)) (= (first lst) 0)]
+    [else (binary-odd? (rest lst))]
+  )
+)
+
+(binary-odd? '(1 0 1 1 0)) ; #f
+(binary-odd? '(1 0 1 1 1)) ; #t
+
+
+
+(define (decrement lst)
+  (define (helper acc lst)
+    (cond
+
+      [
+        (empty? lst) (list 0)
+      ]
+      [
+        (equal? (first lst) 1) (append acc (cons 0 (rest lst)))
+      ]
+      [
+        else (helper (cons 1 acc) (rest lst))
+      ]
+    )
+  )
+  reverse (helper empty (reverse lst))
+)
+
+(decrement '(1 0 1 1 0)) ; '(1 0 1 0 1)
+(decrement '(0)) ; '(0)
+
+
+
+(define (alternating-sum-a lst)
+  (define (helper sign lst)
+    (cond
+      [
+        (empty? lst) 0
+      ]
+      [
+        else (+ (helper (* sign -1) (rest lst)) (* sign (first lst)))
+      ]
+    )
+  )
+  (helper 1 lst)
+)
+
+(alternating-sum-a (list 6 2 4 1 3 9)) ; 1
+
+
+
+(define (helper summ sign lst)
+  (cond
+    [
+      (empty? lst) summ
+    ]
+    [
+      else (helper (+ summ (* (first lst) sign)) (* sign -1) (rest lst))
+    ]
+  )
+)
+
+(define (alternating-sum lst)
+  (helper 0 1 lst)
+)
+
+(alternating-sum (list 1 2 3 4 5)) ; 3
+
+; (helper 0 1 (list 1 2 3 4 5))
+; (helper (+ 0 (* (first (list 1 2 3 4 5)) 1)) (* 1 -1) (rest(list 1 2 3 4 5)))
+; (helper (+ 0 (* 1 1)) (* 1 -1) (rest(list 1 2 3 4 5)))
+; (helper (+ 0 1) (* 1 -1) (rest(list 1 2 3 4 5)))
+; (helper 1 (* 1 -1) (rest(list 1 2 3 4 5)))
+; (helper 1 -1 (rest(list 1 2 3 4 5)))
+; (helper 1 -1 '(2 3 4 5))
+; (helper (+ 1 (* (first '( 2 3 4 5)) -1)) (* -1 -1) (rest '(2 3 4 5)))
+; (helper (+ 1 (* 2 -1)) (* -1 -1) (rest '(2 3 4 5)))
+; (helper (+ 1 -2) (* -1 -1) (rest '(2 3 4 5)))
+; (helper -1 (* -1 -1) (rest '(2 3 4 5)))
+; (helper -1 1 (rest '(2 3 4 5)))
+; (helper -1 1 '(3 4 5))
+; (helper (+ -1 (* (first '(3 4 5)) 1)) (* 1 -1) (rest '(3 4 5)))
+; (helper (+ -1 (* 3 1)) (* 1 -1) (rest '(3 4 5)))
+; (helper (+ -1 3) (* 1 -1) (rest '(3 4 5)))
+; (helper 2 (* 1 -1) (rest '(3 4 5)))
+; (helper 2 -1 (rest '(3 4 5)))
+; (helper 2 -1 '(4 5))
+; (helper (+ 2 (* (first '(4 5)) -1)) (* -1 -1) (rest '(4 5))
+; (helper (+ 2 (* 4 -1)) (* -1 -1) (rest '(4 5))
+; (helper (+ 2 -4) (* -1 -1) (rest '(4 5))
+; (helper -2 (* -1 -1) (rest '(4 5))
+; (helper -2 1 (rest '(4 5))
+; (helper -2 1 '(5)
+; (helper (+ -2 (* (first '(5)) 1)) (* 1 -1) (rest '(5)))
+; (helper (+ -2 (* 5 1)) (* 1 -1) (rest '(5)))
+; (helper (+ -2 5) (* 1 -1) (rest '(5)))
+; (helper 3 (* 1 -1) (rest '(5)))
+; (helper 3 -1 (rest '(5)))
+; (helper 3 -1 '())
+; 3
+
+
+
+
+(define (alternating-sum-c lst)
+  (define (helper summ sign lst)
+    (cond
+      [
+        (empty? lst) summ
+      ]
+      [
+        else (helper (+ summ (* (first lst) sign)) (* sign -1) (rest lst))
+      ]
+    )
+  )
+  (helper 0 1 lst)
+)
+
+(alternating-sum-c (list 6 2 4 1 3 9)) ; 1
+
+
+
+
+(define (dec n)
+  (- n 1)
+)
+
+(define (f n)
+  (cond
+    [
+      (<= n 2) (- 10 n)
+    ]
+    [
+      else (* (f (dec (dec n))) (f (dec n)))
+    ]
+  )
+)
+
+(f 3)
+
+; (* (f (dec (dec 3))) (f (dec 3)))
+; (* (f (dec (- 3 1))) (f (dec 3)))
+; (* (f (dec 2)) (f (dec 3)))
+; (* (f (- 2 1)) (f (dec 3)))
+; (* (f 1) (f (dec 3)))
+; (* (- 10 1) (f (dec 3)))
+; (* 9 (f (dec 3)))
+; (* 9 (f (- 3 1)))
+; (* 9 (f 2))
+; (* 9 (- 10 2))
+; (* 9 8)
+; 72
